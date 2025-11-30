@@ -12,11 +12,16 @@ ai:
     full-model: qwen3-omni-flash
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 50MB
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER}:${MONGO_PWD}@${MONGO_HOST}:27017/spring-ai?authSource=admin
   ai:
     chat:
       client:
@@ -43,4 +48,4 @@ logging:
         ai:
           chat:
             client:
-              advisor: debug
+              advisor: info
