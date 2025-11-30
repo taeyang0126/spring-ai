@@ -15,6 +15,7 @@ Spring AI 学习项目，包括：
 - **Java**: 24
 - **Spring Boot**: 3.5.8
 - **Spring AI**: 1.1.0
+- **MongoDB**: mongodb
 - **Maven**: 项目构建工具
 - **Lombok**: 简化 Java 代码
 - **Spring Boot Actuator**: 应用监控
@@ -41,6 +42,8 @@ Spring AI 学习项目，包括：
 4. **对话记忆**
     - 基于 `MessageWindowChatMemory` 的对话历史管理
     - 支持多轮对话上下文保持
+    - MongoDB 持久化存储对话历史
+    - 支持按对话 ID 或用户 ID 查询历史记录
 
 5. **用户上下文**
     - 自定义 `UserContextAdvisor` 管理用户信息
@@ -52,6 +55,7 @@ Spring AI 学习项目，包括：
 
 - JDK 21 或更高版本
 - Maven 3.6+
+- MongoDB 数据库
 - OpenAI API Key（或兼容的 API，如阿里云 DashScope）
 
 ### 配置步骤
@@ -65,10 +69,13 @@ cd spring-ai
 
 2. **配置环境变量**
 
-设置 `OPENAI_API_KEY` 环境变量：
+设置必要的环境变量：
 
 ```bash
 export OPENAI_API_KEY=your-api-key-here
+export MONGO_HOST=localhost
+export MONGO_USER=your-mongo-username
+export MONGO_PWD=your-mongo-password
 ```
 
 或者在 `application.yml` 中直接配置（不推荐用于生产环境）。
@@ -86,6 +93,11 @@ ai:
     full-model: qwen3-omni-flash   # 多模态模型
 
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_USER}:${MONGO_PWD}@${MONGO_HOST}:27017/spring-ai?authSource=admin
   ai:
     chat:
       client:
@@ -113,23 +125,27 @@ java -jar target/spring-ai-1.0-SNAPSHOT.jar
 
 - 应用默认运行在 `http://localhost:9999`
 - 访问 `http://localhost:9999/chat.html` 使用 Web 界面
-- API 端点：`http://localhost:9999/chat/*`
+- API 端点：
+  - `POST /chat/content` - 普通文本对话
+  - `POST /chat/stream` - 流式响应对话
+  - `POST /chat/history` - 查询对话历史
 
 ## 配置说明
 
 ### application.yml 配置项
 
-| 配置项                                         | 说明         | 默认值              |
-|---------------------------------------------|------------|------------------|
-| `server.port`                               | 服务端口       | 9999             |
-| `spring.ai.openai.api-key`                  | API 密钥     | 从环境变量读取          |
-| `spring.ai.openai.base-url`                 | API 基础地址   | DashScope 兼容地址   |
-| `ai.openai.max-tokens`                      | 最大 token 数 | 1000             |
-| `ai.openai.temperature`                     | 温度参数       | 0.5              |
-| `ai.openai.text-model`                      | 文本模型名称     | qwen3-max        |
-| `ai.openai.full-model`                      | 多模态模型名称    | qwen3-omni-flash |
-| `spring.servlet.multipart.max-file-size`    | 最大文件大小     | 10MB             |
-| `spring.servlet.multipart.max-request-size` | 最大请求大小     | 50MB             |
+| 配置项                                         | 说明           | 默认值              |
+|---------------------------------------------|--------------|------------------|
+| `server.port`                               | 服务端口         | 9999             |
+| `spring.ai.openai.api-key`                  | API 密钥       | 从环境变量读取          |
+| `spring.ai.openai.base-url`                 | API 基础地址     | DashScope 兼容地址   |
+| `spring.data.mongodb.uri`                   | MongoDB 连接地址 | 从环境变量读取          |
+| `ai.openai.max-tokens`                      | 最大 token 数   | 1000             |
+| `ai.openai.temperature`                     | 温度参数         | 0.5              |
+| `ai.openai.text-model`                      | 文本模型名称       | qwen3-max        |
+| `ai.openai.full-model`                      | 多模态模型名称      | qwen3-omni-flash |
+| `spring.servlet.multipart.max-file-size`    | 最大文件大小       | 10MB             |
+| `spring.servlet.multipart.max-request-size` | 最大请求大小       | 50MB             |
 
 ### 模型配置
 
@@ -148,7 +164,9 @@ spring-ai/
 │   │   │   ├── advisor/              # Advisor 实现
 │   │   │   ├── configuration/        # 配置类
 │   │   │   ├── controller/           # 控制器
+│   │   │   ├── memory/               # 对话记忆管理
 │   │   │   ├── model/                # 数据模型
+│   │   │   ├── support/              # support
 │   │   │   ├── utils/                # 工具类
 │   │   │   └── Application.java      # 主应用类
 │   │   └── resources/
@@ -165,13 +183,36 @@ spring-ai/
 
 2. **文件上传限制**: 默认最大文件大小为 10MB，可在 `application.yml` 中调整。
 
-3. **对话记忆**: 当前使用 `MessageWindowChatMemory`，对话历史保存在内存中，应用重启后会丢失。
+3. **对话记忆**: 使用 `MessageWindowChatMemory` 结合 MongoDB 持久化存储，对话历史会保存到数据库中，应用重启后不会丢失。
 
 4. **用户上下文**: `UserContextUtils.getCurrentUserId()` 需要根据实际业务实现用户身份获取逻辑。
 
 5. **模型选择**:
     - 文本对话使用 `textChatClient`（性能更好）
     - 需要图片支持时使用 `fullChatClient`
+
+## 核心实现
+
+### 自定义 MongoDB 对话记忆仓库
+
+项目实现了 `CustomerMongoChatMemoryRepository`，扩展了 Spring AI 的 `ChatMemoryRepository` 接口：
+
+- **持久化存储**：对话历史保存到 MongoDB 的 `ai_chat_memory` 集合
+- **用户维度管理**：每条对话记录关联用户 ID，支持按用户查询
+- **对话分组**：支持按 `conversationId` 分组管理对话
+- **消息窗口**：默认保留最近 20 条消息，避免上下文过长
+
+### 对话记忆配置
+
+```java
+@Bean
+public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository) {
+    return MessageWindowChatMemory.builder()
+            .maxMessages(20)  // 最多保留 20 条消息
+            .chatMemoryRepository(chatMemoryRepository)
+            .build();
+}
+```
 
 ## 测试
 
