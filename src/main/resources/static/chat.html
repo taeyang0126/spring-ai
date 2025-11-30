@@ -5,16 +5,18 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>SSE 聊天（支持图片）</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- 替换原来的 marked 引入 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
     <script>
-        // 配置 marked：注意 breaks 设为 false，因为我们自己处理换行
-        marked.setOptions({
-            gfm: true,
-            breaks: false,
-            renderer: new marked.Renderer()
+        marked.use({
+            gfm: true,           // 启用 GFM（表格、任务列表）
+            breaks: true,         // ←←← 关键！让单个 \n 也变成 <br>
+            pedantic: false,
+            sanitize: false,
+            smartLists: true,
+            smartypants: false
         });
     </script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -52,6 +54,26 @@
         .message-content p {
             margin: 1em 0;
             line-height: 1.6;
+        }
+
+        .message-content table {
+            width: 100%;
+            border-collapse: collapse; /* 合并边框 */
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .message-content th,
+        .message-content td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd; /* 底部边框 */
+        }
+
+        .message-content th {
+            background-color: #f5f7fa;
+            font-weight: bold;
+            border-bottom: 2px solid #ccc;
         }
 
         .message {
@@ -198,6 +220,7 @@
         msg.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
 
         const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content'; // ←←← 关键！加上这行
         contentDiv.innerHTML = htmlContent;
 
         const timeEl = document.createElement('div');
@@ -330,9 +353,7 @@
                         let text = line.substring(5).trim();
                         if (text !== '') {
                             // 还原并标准化换行
-                            text = text.replace(/\[NEWLINE\]/g, '\n')
-                                .replace(/\n\n/g, '<br><br>')
-                                .replace(/\n/g, '<br>');
+                            text = text.replace(/\[NEWLINE\]/g, '\n');
 
                             botMessage += text;
 
