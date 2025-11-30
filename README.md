@@ -9,6 +9,7 @@ Spring AI 学习项目，包括：
 - 多模态支持（图片上传）
 - 对话记忆管理
 - 用户上下文管理
+- Function Calling（工具调用）
 
 ## 技术栈
 
@@ -48,6 +49,15 @@ Spring AI 学习项目，包括：
 5. **用户上下文**
     - 自定义 `UserContextAdvisor` 管理用户信息
     - 支持用户 ID 注入到对话上下文
+
+6. **Function Calling（工具调用）**
+    - 支持自定义工具函数
+    - 内置时间工具 `DateTimeTools`，可获取当前时间
+    - AI 可根据用户问题自动调用相应工具
+
+7. **动态模型选择**
+    - 支持通过配置动态选择文本模型或多模态模型
+    - 灵活切换不同场景下的模型使用
 
 ## 快速开始
 
@@ -91,6 +101,7 @@ ai:
     temperature: 0.5
     text-model: qwen3-max          # 文本模型
     full-model: qwen3-omni-flash   # 多模态模型
+    chat-model-type: text          # 默认使用的模型类型：text 或 full
 
 spring:
   main:
@@ -144,6 +155,7 @@ java -jar target/spring-ai-1.0-SNAPSHOT.jar
 | `ai.openai.temperature`                     | 温度参数         | 0.5              |
 | `ai.openai.text-model`                      | 文本模型名称       | qwen3-max        |
 | `ai.openai.full-model`                      | 多模态模型名称      | qwen3-omni-flash |
+| `ai.openai.chat-model-type`                 | 默认模型类型       | text             |
 | `spring.servlet.multipart.max-file-size`    | 最大文件大小       | 10MB             |
 | `spring.servlet.multipart.max-request-size` | 最大请求大小       | 50MB             |
 
@@ -151,8 +163,12 @@ java -jar target/spring-ai-1.0-SNAPSHOT.jar
 
 项目支持两种模型配置：
 
-- **textChatModel**: 用于纯文本对话，使用 `qwen3-max`
+- **textChatModel**: 用于纯文本对话，使用 `qwen3-max`，支持 Function Calling
 - **fullChatModel**: 用于多模态对话（文本+图片），使用 `qwen3-omni-flash`
+
+通过 `ai.openai.chat-model-type` 配置项可以设置默认使用的模型类型：
+- `text`: 使用文本模型（支持工具调用）
+- `full`: 使用多模态模型（支持图片）
 
 ## 项目结构
 
@@ -166,7 +182,8 @@ spring-ai/
 │   │   │   ├── controller/           # 控制器
 │   │   │   ├── memory/               # 对话记忆管理
 │   │   │   ├── model/                # 数据模型
-│   │   │   ├── support/              # support
+│   │   │   ├── support/              # 常量和枚举定义
+│   │   │   ├── tool/                 # Function Calling 工具
 │   │   │   ├── utils/                # 工具类
 │   │   │   └── Application.java      # 主应用类
 │   │   └── resources/
@@ -188,8 +205,13 @@ spring-ai/
 4. **用户上下文**: `UserContextUtils.getCurrentUserId()` 需要根据实际业务实现用户身份获取逻辑。
 
 5. **模型选择**:
-    - 文本对话使用 `textChatClient`（性能更好）
-    - 需要图片支持时使用 `fullChatClient`
+    - 通过 `ai.openai.chat-model-type` 配置默认模型类型
+    - `text` 模型支持 Function Calling，性能更好
+    - `full` 模型支持图片输入
+
+6. **Function Calling**:
+    - 仅文本模型（textChatClient）支持工具调用
+    - 多模态模型（fullChatClient）不支持 Function Calling
 
 ## 核心实现
 

@@ -1,5 +1,6 @@
 package com.lei.learn.spring.ai.configuration;
 
+import com.lei.learn.spring.ai.support.ModelType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -26,5 +27,10 @@ public class OpenAiProperties {
      * 全模态模型
      */
     private String fullModel;
+
+    /**
+     * chat 模型类型
+     */
+    private ModelType chatModelType;
 
 }

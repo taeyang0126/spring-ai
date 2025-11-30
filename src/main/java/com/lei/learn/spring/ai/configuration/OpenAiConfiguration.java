@@ -2,6 +2,7 @@ package com.lei.learn.spring.ai.configuration;
 
 import com.lei.learn.spring.ai.advisor.UserContextAdvisor;
 import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
+import com.lei.learn.spring.ai.tool.DateTimeTools;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -133,11 +134,13 @@ public class OpenAiConfiguration {
                         // StructuredOutputValidationAdvisor 结构化输出，如不是指定的结构化则会进行重试
                         // StructuredOutputValidationAdvisor.builder().outputType().maxRepeatAttempts(3).advisorOrder(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 1000).build()
                 )
+                .defaultTools(new DateTimeTools())
                 .build();
     }
 
     /**
      * 全模态 chatClient
+     * 不支持 Function Call，只有明确宣称支持 function calling 的模型才可用
      *
      * @param chatMemory
      * @param chatModel

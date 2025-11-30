@@ -1,9 +1,11 @@
 package com.lei.learn.spring.ai.controller;
 
+import com.lei.learn.spring.ai.configuration.OpenAiProperties;
 import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
 import com.lei.learn.spring.ai.model.ChatHistoryRequest;
 import com.lei.learn.spring.ai.model.ChatRequest;
 import com.lei.learn.spring.ai.model.ConversationHistory;
+import com.lei.learn.spring.ai.support.ModelType;
 import com.lei.learn.spring.ai.utils.UserContextUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;
@@ -51,19 +53,23 @@ public class ChatController {
     private final ChatClient textChatClient;
     private final ChatClient fullChatClient;
     private final CustomerMongoChatMemoryRepository chatMemoryRepository;
+    private final OpenAiProperties  openAiProperties;
 
     public ChatController(@Qualifier("textChatClient") ChatClient textChatClient,
                           @Qualifier("fullChatClient") ChatClient fullChatClient,
-                          CustomerMongoChatMemoryRepository chatMemoryRepository) {
+                          CustomerMongoChatMemoryRepository chatMemoryRepository,
+                          OpenAiProperties openAiProperties) {
         this.textChatClient = textChatClient;
         this.fullChatClient = fullChatClient;
         this.chatMemoryRepository = chatMemoryRepository;
+        this.openAiProperties = openAiProperties;
     }
 
     @PostMapping("/content")
     String generation(@RequestBody ChatRequest chatRequest) {
         chatRequest.check();
-        return this.textChatClient.prompt()
+        ChatClient chatClient = ModelType.TEXT.equals(openAiProperties.getChatModelType()) ? textChatClient : fullChatClient;
+        return chatClient.prompt()
                 .user(chatRequest.getUserInput())
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatRequest.getConversationId()))
                 .call()
@@ -95,6 +101,7 @@ public class ChatController {
         }
 
         boolean hasImages = null != images && !images.isEmpty();
+        ChatClient chatClient = ModelType.TEXT.equals(openAiProperties.getChatModelType()) ? textChatClient : fullChatClient;
 
         // 处理图片
         List<Media> mediaList;
@@ -118,7 +125,7 @@ public class ChatController {
         }
 
 
-        Flux<String> flux = fullChatClient.prompt()
+        Flux<String> flux = chatClient.prompt()
                 .user(u -> {
                     u.text(chatRequest.getUserInput());
                     if (hasImages) {

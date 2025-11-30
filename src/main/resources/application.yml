@@ -10,6 +10,8 @@ ai:
     temperature: 0.5
     text-model: qwen3-max
     full-model: qwen3-omni-flash
+    # chat 文本模型
+    chat-model-type: text
 
 spring:
   main:
