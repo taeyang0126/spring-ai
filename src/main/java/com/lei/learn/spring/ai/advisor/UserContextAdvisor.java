@@ -11,6 +11,8 @@ import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
 import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import reactor.core.publisher.Flux;
 
+import static com.lei.learn.spring.ai.support.Constants.USER_ID;
+
 /**
  * <p>
  * UserInfoAdvisor
@@ -20,8 +22,6 @@ import reactor.core.publisher.Flux;
  */
 @Log4j2
 public class UserContextAdvisor implements CallAdvisor, StreamAdvisor {
-
-    public static final String USER_ID = "userId";
 
     private static void handlerRequest(ChatClientRequest chatClientRequest) {
         if (!chatClientRequest.context().containsKey(USER_ID)) {

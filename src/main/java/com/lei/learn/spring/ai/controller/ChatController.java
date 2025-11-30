@@ -1,11 +1,14 @@
 package com.lei.learn.spring.ai.controller;
 
-import com.lei.learn.spring.ai.advisor.UserContextAdvisor;
+import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
+import com.lei.learn.spring.ai.model.ChatHistoryRequest;
 import com.lei.learn.spring.ai.model.ChatRequest;
+import com.lei.learn.spring.ai.model.ConversationHistory;
 import com.lei.learn.spring.ai.utils.UserContextUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.content.Media;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
@@ -27,6 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+
+import static com.lei.learn.spring.ai.support.Constants.USER_ID;
 
 /**
  * <p>
@@ -44,11 +50,14 @@ public class ChatController {
 
     private final ChatClient textChatClient;
     private final ChatClient fullChatClient;
+    private final CustomerMongoChatMemoryRepository chatMemoryRepository;
 
     public ChatController(@Qualifier("textChatClient") ChatClient textChatClient,
-                          @Qualifier("fullChatClient") ChatClient fullChatClient) {
+                          @Qualifier("fullChatClient") ChatClient fullChatClient,
+                          CustomerMongoChatMemoryRepository chatMemoryRepository) {
         this.textChatClient = textChatClient;
         this.fullChatClient = fullChatClient;
+        this.chatMemoryRepository = chatMemoryRepository;
     }
 
     @PostMapping("/content")
@@ -117,7 +126,7 @@ public class ChatController {
                     }
                 })
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatRequest.getConversationId())
-                        .param(UserContextAdvisor.USER_ID, currentUserId))
+                        .param(USER_ID, currentUserId))
                 .stream()
                 .content();
 
@@ -136,6 +145,23 @@ public class ChatController {
                 );
 
         return emitter;
+    }
+
+    @PostMapping("/history")
+    public List<ConversationHistory> getChatHistory(@RequestBody ChatHistoryRequest request) {
+        request.validate();
+
+        if (request.getConversationId() != null) {
+            List<Message> messages =
+                    chatMemoryRepository.findByConversationId(request.getConversationId());
+            return List.of(new ConversationHistory(request.getConversationId(), messages));
+        } else {
+            var userMessagesMap =
+                    chatMemoryRepository.findByUserId(request.getUserId());
+            return userMessagesMap.entrySet().stream()
+                    .map(entry -> new ConversationHistory(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+        }
     }
 
 }

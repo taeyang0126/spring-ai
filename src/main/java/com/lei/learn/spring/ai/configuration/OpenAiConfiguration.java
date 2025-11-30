@@ -1,6 +1,7 @@
 package com.lei.learn.spring.ai.configuration;
 
 import com.lei.learn.spring.ai.advisor.UserContextAdvisor;
+import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -10,7 +11,6 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
-import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.model.tool.ToolCallingManager;
@@ -22,6 +22,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.retry.support.RetryTemplate;
 
 /**
@@ -58,10 +60,13 @@ public class OpenAiConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public ChatMemoryRepository chatMemoryRepository() {
-        return new InMemoryChatMemoryRepository();
+    @Primary
+    public ChatMemoryRepository customChatMemoryRepository(MongoTemplate mongoTemplate) {
+        return CustomerMongoChatMemoryRepository.builder()
+                .mongoTemplate(mongoTemplate)
+                .build();
     }
+
 
     @Bean
     @ConditionalOnMissingBean
