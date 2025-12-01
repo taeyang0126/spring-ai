@@ -1,4 +1,4 @@
-package com.lei.learn.spring.ai.model;
+package com.lei.learn.spring.ai.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

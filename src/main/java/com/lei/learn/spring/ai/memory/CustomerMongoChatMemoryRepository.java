@@ -1,5 +1,6 @@
 package com.lei.learn.spring.ai.memory;
 
+import com.lei.learn.spring.ai.model.Conversation;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;

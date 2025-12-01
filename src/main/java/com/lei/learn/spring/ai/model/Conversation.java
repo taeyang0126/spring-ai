@@ -1,4 +1,4 @@
-package com.lei.learn.spring.ai.memory;
+package com.lei.learn.spring.ai.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 

@@ -2,9 +2,9 @@ package com.lei.learn.spring.ai.controller;
 
 import com.lei.learn.spring.ai.configuration.OpenAiProperties;
 import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
-import com.lei.learn.spring.ai.model.ChatHistoryRequest;
-import com.lei.learn.spring.ai.model.ChatRequest;
-import com.lei.learn.spring.ai.model.ConversationHistory;
+import com.lei.learn.spring.ai.model.dto.ChatHistoryRequest;
+import com.lei.learn.spring.ai.model.dto.ChatRequest;
+import com.lei.learn.spring.ai.model.vo.ConversationHistory;
 import com.lei.learn.spring.ai.support.ModelType;
 import com.lei.learn.spring.ai.utils.UserContextUtils;
 import lombok.extern.log4j.Log4j2;

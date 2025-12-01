@@ -1,4 +1,4 @@
-package com.lei.learn.spring.ai.model;
+package com.lei.learn.spring.ai.model.vo;
 
 import org.springframework.ai.chat.messages.Message;
 

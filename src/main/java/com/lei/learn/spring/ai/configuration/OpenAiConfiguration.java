@@ -2,7 +2,9 @@ package com.lei.learn.spring.ai.configuration;
 
 import com.lei.learn.spring.ai.advisor.UserContextAdvisor;
 import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
+import com.lei.learn.spring.ai.repository.UserRepository;
 import com.lei.learn.spring.ai.tool.DateTimeTools;
+import com.lei.learn.spring.ai.tool.UserTools;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -114,10 +116,15 @@ public class OpenAiConfiguration {
         );
     }
 
+    @Bean
+    public UserTools userTools(UserRepository userRepository) {
+        return new UserTools(userRepository);
+    }
 
     @Bean("textChatClient")
     public ChatClient textChatClient(ChatMemory chatMemory,
-                                     @Qualifier("textChatModel") ChatModel chatModel) {
+                                     @Qualifier("textChatModel") ChatModel chatModel,
+                                     UserTools userTools) {
         log.info("[textChatClient] init | start");
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(
@@ -134,7 +141,9 @@ public class OpenAiConfiguration {
                         // StructuredOutputValidationAdvisor 结构化输出，如不是指定的结构化则会进行重试
                         // StructuredOutputValidationAdvisor.builder().outputType().maxRepeatAttempts(3).advisorOrder(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 1000).build()
                 )
-                .defaultTools(new DateTimeTools())
+                // 默认工具会在所有由同一ChatClient.Builder实例构建的 ChatClient 实例执行的所有聊天请求之间共享
+                // 要求 tool 最好是无状态可共享的
+                .defaultTools(new DateTimeTools(), userTools)
                 .build();
     }
 
