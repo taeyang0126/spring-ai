@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Log4j2
 public class DateTimeTools {
 
-    @Tool(description = "当前时间")
+    @Tool(description = "获取用户所在时区的当前日期和时间")
     public String getCurrentDateTime() {
         log.info("[tool] getCurrentDateTime | calling");
         return LocalDateTime.now().atZone(LocaleContextHolder.getTimeZone().toZoneId()).toString();
