@@ -10,13 +10,14 @@ Spring AI 学习项目，包括：
 - 对话记忆管理
 - 用户上下文管理
 - Function Calling（工具调用）
+- MCP（Model Context Protocol）集成
 
 ## 技术栈
 
 - **Java**: 21
 - **Spring Boot**: 3.5.8
 - **Spring AI**: 1.1.0
-- **MongoDB**: mongodb
+- **MongoDB**: 对话记忆持久化存储
 - **Maven**: 项目构建工具
 - **Lombok**: 简化 Java 代码
 - **Spring Boot Actuator**: 应用监控
@@ -52,12 +53,19 @@ Spring AI 学习项目，包括：
 
 6. **Function Calling（工具调用）**
     - 支持自定义工具函数
-    - 内置时间工具 `DateTimeTools`，可获取当前时间
+    - 内置时间工具 `DateTimeTools`：获取当前时间、设置闹钟
+    - 内置用户工具 `UserTools`：查询用户信息（支持按用户名、邮箱、手机号查询）
     - AI 可根据用户问题自动调用相应工具
+    - 支持 `ToolContext` 获取上下文信息
 
 7. **动态模型选择**
     - 支持通过配置动态选择文本模型或多模态模型
     - 灵活切换不同场景下的模型使用
+
+8. **MCP 集成**
+    - 支持 Model Context Protocol (MCP)
+    - 可通过 MCP 连接外部工具服务器
+    - 内置天气服务器示例
 
 ## 快速开始
 
@@ -114,6 +122,13 @@ spring:
       client:
         # 关闭自动注入 client.builder，只注入 ClientModel
         enabled: false
+    # MCP 配置
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            my-weather-server:
+              url: http://localhost:9001
     openai:
       api-key: ${OPENAI_API_KEY}
       base-url: https://dashscope.aliyuncs.com/compatible-mode
@@ -174,22 +189,26 @@ java -jar target/spring-ai-1.0-SNAPSHOT.jar
 
 ```
 spring-ai/
-├── src/
-│   ├── main/
-│   │   ├── java/com/lei/learn/spring/ai/
-│   │   │   ├── advisor/              # Advisor 实现
-│   │   │   ├── configuration/        # 配置类
-│   │   │   ├── controller/           # 控制器
-│   │   │   ├── memory/               # 对话记忆管理
-│   │   │   ├── model/                # 数据模型
-│   │   │   ├── support/              # 常量和枚举定义
-│   │   │   ├── tool/                 # Function Calling 工具
-│   │   │   ├── utils/                # 工具类
-│   │   │   └── Application.java      # 主应用类
-│   │   └── resources/
-│   │       ├── application.yml        # 配置文件
-│   │       └── static/               # 静态资源
-│   └── test/                         # 测试代码
+├── spring-ai-demo/                   # 主应用
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/lei/learn/spring/ai/
+│   │   │   │   ├── advisor/          # Advisor 实现
+│   │   │   │   ├── configuration/    # 配置类
+│   │   │   │   ├── controller/       # 控制器
+│   │   │   │   ├── mcp/              # MCP
+│   │   │   │   ├── memory/           # 对话记忆管理
+│   │   │   │   ├── model/            # 数据模型
+│   │   │   │   ├── repository/       # 数据访问层
+│   │   │   │   ├── support/          # 常量和枚举定义
+│   │   │   │   ├── tool/             # Function Calling 工具
+│   │   │   │   ├── utils/            # 工具类
+│   │   │   │   └── Application.java  # 主应用类
+│   │   │   └── resources/
+│   │   │       ├── application.yml    # 配置文件
+│   │   │       └── static/           # 静态资源
+│   │   └── test/                     # 测试代码
+├── mcp-weather-server/               # MCP 天气服务器示例
 ├── pom.xml                           # Maven 配置
 └── README.md                         # 项目说明
 ```
@@ -212,6 +231,10 @@ spring-ai/
 6. **Function Calling**:
     - 仅文本模型（textChatClient）支持工具调用
     - 多模态模型（fullChatClient）不支持 Function Calling
+
+7. **MCP 服务器**:
+    - 项目包含 `mcp-weather-server` 示例，演示如何创建 MCP 工具服务器
+    - 需要单独启动 MCP 服务器（端口 9001）才能使用相关工具
 
 ## 核心实现
 
