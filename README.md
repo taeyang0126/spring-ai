@@ -13,7 +13,7 @@ Spring AI 学习项目，包括：
 
 ## 技术栈
 
-- **Java**: 24
+- **Java**: 21
 - **Spring Boot**: 3.5.8
 - **Spring AI**: 1.1.0
 - **MongoDB**: mongodb
