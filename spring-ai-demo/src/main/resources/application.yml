@@ -29,6 +29,13 @@ spring:
       client:
         # 关闭自动注入 client.builder，只注入 ClientModel
         enabled: false
+    # mcp
+    mcp:
+      client:
+        streamable-http:
+          connections:
+            my-weather-server:
+              url: http://localhost:9001
     openai:
       api-key: ${OPENAI_API_KEY}
       base-url: https://dashscope.aliyuncs.com/compatible-mode

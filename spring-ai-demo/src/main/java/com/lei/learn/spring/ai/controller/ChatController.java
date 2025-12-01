@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class ChatController {
     private final ChatClient fullChatClient;
     private final CustomerMongoChatMemoryRepository chatMemoryRepository;
     private final OpenAiProperties  openAiProperties;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public ChatController(@Qualifier("textChatClient") ChatClient textChatClient,
                           @Qualifier("fullChatClient") ChatClient fullChatClient,
@@ -135,7 +137,7 @@ public class ChatController {
                 })
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatRequest.getConversationId())
                         .param(USER_ID, currentUserId))
-                .toolContext(Map.of(USER_ID, currentUserId))
+                .toolContext(Map.of(USER_ID, currentUserId, "progressToken", "token-" + secureRandom.nextInt()))
                 .stream()
                 .content();
 

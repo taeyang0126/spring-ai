@@ -17,11 +17,14 @@
     <packaging>pom</packaging>
     <modules>
         <module>spring-ai-demo</module>
+        <module>mcp-weather-server</module>
     </modules>
 
     <properties>
+        <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-ai.version>1.1.0</spring-ai.version>
     </properties>

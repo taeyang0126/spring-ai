@@ -20,6 +20,7 @@ import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -124,7 +125,8 @@ public class OpenAiConfiguration {
     @Bean("textChatClient")
     public ChatClient textChatClient(ChatMemory chatMemory,
                                      @Qualifier("textChatModel") ChatModel chatModel,
-                                     UserTools userTools) {
+                                     UserTools userTools,
+                                     ToolCallbackProvider mcpToolProvider) {
         log.info("[textChatClient] init | start");
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(
@@ -144,6 +146,8 @@ public class OpenAiConfiguration {
                 // 默认工具会在所有由同一ChatClient.Builder实例构建的 ChatClient 实例执行的所有聊天请求之间共享
                 // 要求 tool 最好是无状态可共享的
                 .defaultTools(new DateTimeTools(), userTools)
+                // mcp
+                .defaultToolCallbacks(mcpToolProvider)
                 .build();
     }
 
