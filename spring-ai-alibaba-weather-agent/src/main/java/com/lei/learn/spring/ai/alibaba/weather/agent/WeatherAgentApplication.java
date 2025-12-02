@@ -1,14 +1,14 @@
 package com.lei.learn.spring.ai.alibaba.weather.agent;
 
-import com.alibaba.cloud.ai.graph.RunnableConfig;
 import com.alibaba.cloud.ai.graph.agent.ReactAgent;
-import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-import java.util.UUID;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
 
 /**
  * <p>
@@ -27,7 +27,7 @@ public class WeatherAgentApplication implements CommandLineRunner {
         SpringApplication.run(WeatherAgentApplication.class, args);
     }
 
-/*    @Bean
+    @Bean
     public ApplicationListener<ApplicationReadyEvent> applicationReadyEventListener(Environment environment) {
         return event -> {
             String port = environment.getProperty("server.port", "8080");
@@ -38,11 +38,11 @@ public class WeatherAgentApplication implements CommandLineRunner {
             System.out.println("🚀 Chat with you agent: " + accessUrl);
             System.out.println("🎉========================================🎉\n");
         };
-    }*/
+    }
 
     @Override
     public void run(String... args) throws Exception {
-        String threadId = UUID.randomUUID().toString();
+/*        String threadId = UUID.randomUUID().toString();
         RunnableConfig runnableConfig = RunnableConfig.builder()
                 .threadId(threadId)
                 .addMetadata("user_id", 1)
@@ -56,7 +56,7 @@ public class WeatherAgentApplication implements CommandLineRunner {
         System.out.println(response.getText());
 
         response = agent.call("thank you!", runnableConfig);
-        System.out.println(response.getText());
+        System.out.println(response.getText());*/
 
 
     }
