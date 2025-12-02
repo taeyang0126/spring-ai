@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>spring-ai-alibaba-agent-weather-agent</artifactId>
+    <artifactId>spring-ai-alibaba-weather-agent</artifactId>
 
     <dependencies>
         <!-- Spring AI Alibaba Agent Framework -->
