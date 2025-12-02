@@ -1,0 +1,22 @@
+server:
+  port: 8001
+
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+    model:
+      embedding: qwen2.5-vl-embedding
+    vectorstore:
+      opensearch:
+        uris: ${OPEN_SEARCH_URI}
+        username: ${OPEN_SEARCH_USER}
+        password: ${OPEN_SEARCH_PWD}
+        index-name: spring-ai-document-index
+        # 首次启动时自动创建索引和映射
+        initialize-schema: true
+        # 相似度计算函数（OpenSearch 支持 'cosinesimil' 或 'l2'）
+        similarity-function: cosinesimil
+        read-timeout: 30s
+        connect-timeout: 10s
