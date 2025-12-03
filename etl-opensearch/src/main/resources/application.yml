@@ -2,12 +2,21 @@ server:
   port: 8001
 
 spring:
+  ssl:
+    bundle:
+      pem:
+        opensearch:
+          truststore:
+            certificate: "classpath:certs/opensearch-ca.pem"
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+#      embedding:
+#        options:
+#          # qwen2.5-vl-embedding(全模态 embedding 模型)
+#          model: qwen2.5-vl-embedding
     model:
-      embedding: qwen2.5-vl-embedding
+      embedding: dashscope
     vectorstore:
       opensearch:
         uris: ${OPEN_SEARCH_URI}
@@ -17,6 +26,7 @@ spring:
         # 首次启动时自动创建索引和映射
         initialize-schema: true
         # 相似度计算函数（OpenSearch 支持 'cosinesimil' 或 'l2'）
-        similarity-function: cosinesimil
+        similarity: cosinesimil
         read-timeout: 30s
-        connect-timeout: 10s
+        connection-timeout: 10s
+        ssl-bundle: opensearch
