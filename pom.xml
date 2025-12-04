@@ -18,7 +18,8 @@
     <modules>
         <module>spring-ai-example</module>
         <module>mcp-weather-server</module>
-        <module>etl-opensearch</module>
+        <module>rag-etl-core</module>
+        <module>rag-etl-opensearch</module>
         <module>spring-ai-alibaba-weather-agent</module>
     </modules>
 
