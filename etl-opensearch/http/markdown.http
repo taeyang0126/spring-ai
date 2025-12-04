@@ -1,0 +1,50 @@
+### 处理本地 Markdown 文件 - 基础示例
+POST http://localhost:7001/api/markdown/process
+Content-Type: application/json
+
+{
+  "filePath": "/path/to/your/document.md"
+}
+
+###
+
+### 处理本地 Markdown 文件 - 完整配置
+POST http://localhost:7001/api/markdown/process
+Content-Type: application/json
+
+{
+  "filePath": "/path/to/your/document.md",
+  "splitterConfig": {
+    "chunkSize": 800,
+    "minChunkSizeChars": 300,
+    "minChunkLengthToEmbed": 5,
+    "maxNumChunks": 10000,
+    "keepSeparator": true
+  },
+  "markdownConfig": {
+    "horizontalRuleCreateDocument": false,
+    "includeCodeBlock": true,
+    "includeBlockquote": true
+  },
+  "metadata": {
+    "author": "张三",
+    "category": "httpClient"
+  }
+}
+
+###
+
+### 处理本地 Markdown 文件 - 自定义元数据
+POST http://localhost:7001/api/markdown/process
+Content-Type: application/json
+
+{
+  "filePath": "/Users/wulei/Documents/example.md",
+  "metadata": {
+    "author": "李四",
+    "department": "技术部",
+    "version": "1.0"
+  }
+}
+
+###

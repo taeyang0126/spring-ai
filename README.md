@@ -2,70 +2,29 @@
 
 ## 项目简介
 
-Spring AI 学习项目，包括：
-
-- 文本对话
-- 流式响应（SSE）
-- 多模态支持（图片上传）
-- 对话记忆管理
-- 用户上下文管理
-- Function Calling（工具调用）
-- MCP（Model Context Protocol）集成
+Spring AI 学习项目，这是一个多模块的 Maven 项目，包含多个示例模块，涵盖 Spring AI 的各种核心功能和应用场景。
 
 ## 技术栈
 
 - **Java**: 21
 - **Spring Boot**: 3.5.8
-- **Spring AI**: 1.1.0
-- **MongoDB**: 对话记忆持久化存储
-- **Maven**: 项目构建工具
+- **Spring AI**: 1.1.0-M4
+- **Spring AI Alibaba**: 1.1.0.0-M5
+- **Maven**: 项目构建工具（多模块项目）
 - **Lombok**: 简化 Java 代码
-- **Spring Boot Actuator**: 应用监控
 
-## 功能特性
+## 项目模块
 
-### 核心功能
+本项目包含以下四个模块：
 
-1. **文本聊天**
-    - 支持普通文本对话
-    - 基于对话 ID 的上下文记忆
-    - 用户上下文管理
+| 模块 | 说明 | 详细文档 |
+|------|------|----------|
+| [spring-ai-example](./spring-ai-example) | Spring AI 核心功能示例：文本对话、多模态、Function Calling、MCP 集成等 | [README](./spring-ai-example/README.md) |
+| [mcp-weather-server](./mcp-weather-server) | MCP 服务器实现示例，提供天气查询工具服务 | [README](./mcp-weather-server/README.md) |
+| [spring-ai-alibaba-weather-agent](./spring-ai-alibaba-weather-agent) | 基于 Spring AI Alibaba 的智能体框架示例，实现天气查询 Agent | [README](./spring-ai-alibaba-weather-agent/README.md) |
+| [etl-opensearch](./etl-opensearch) | RAG 向量存储示例，演示文档 ETL 处理和向量存储 | [README](./etl-opensearch/README.md) |
 
-2. **流式响应**
-    - 基于 Server-Sent Events (SSE) 的实时流式响应
-    - 支持图片上传的多模态对话
-    - 异步处理，提升用户体验
 
-3. **多模态支持**
-    - 支持图片上传
-    - 图片与文本混合输入
-    - 自动识别图片 MIME 类型
-
-4. **对话记忆**
-    - 基于 `MessageWindowChatMemory` 的对话历史管理
-    - 支持多轮对话上下文保持
-    - MongoDB 持久化存储对话历史
-    - 支持按对话 ID 或用户 ID 查询历史记录
-
-5. **用户上下文**
-    - 自定义 `UserContextAdvisor` 管理用户信息
-    - 支持用户 ID 注入到对话上下文
-
-6. **Function Calling（工具调用）**
-    - 支持自定义工具函数
-    - 内置时间工具 `DateTimeTools`：获取当前时间、设置闹钟
-    - 内置用户工具 `UserTools`：查询用户信息（支持按用户名、邮箱、手机号查询）
-    - AI 可根据用户问题自动调用相应工具
-    - 支持 `ToolContext` 获取上下文信息
-
-7. **动态模型选择**
-    - 支持通过配置动态选择文本模型或多模态模型
-    - 灵活切换不同场景下的模型使用
-
-8. **MCP 集成**
-    - 支持 Model Context Protocol (MCP)
-    - 可通过 MCP 连接外部工具服务器
-    - 内置天气服务器示例
 
 ## 快速开始
 
@@ -73,197 +32,46 @@ Spring AI 学习项目，包括：
 
 - JDK 21 或更高版本
 - Maven 3.6+
-- MongoDB 数据库
-- OpenAI API Key（或兼容的 API，如阿里云 DashScope）
+- MongoDB 数据库（spring-ai-example 模块需要）
+- OpenSearch（etl-opensearch 模块需要）
+- OpenAI API Key 或阿里云 DashScope API Key
 
-### 配置步骤
-
-1. **克隆项目**
+### 构建项目
 
 ```bash
 git clone <repository-url>
 cd spring-ai
+mvn clean install
 ```
 
-2. **配置环境变量**
+### 运行模块
 
-设置必要的环境变量：
+每个模块都可以独立运行，详细的配置和运行说明请参考各模块的 README 文档：
 
-```bash
-export OPENAI_API_KEY=your-api-key-here
-export MONGO_HOST=localhost
-export MONGO_USER=your-mongo-username
-export MONGO_PWD=your-mongo-password
-```
-
-或者在 `application.yml` 中直接配置（不推荐用于生产环境）。
-
-3. **修改配置**
-
-编辑 `src/main/resources/application.yml`，根据你的需求调整配置：
-
-```yaml
-ai:
-  openai:
-    max-tokens: 1000
-    temperature: 0.5
-    text-model: qwen3-max          # 文本模型
-    full-model: qwen3-omni-flash   # 多模态模型
-    chat-model-type: text          # 默认使用的模型类型：text 或 full
-
-spring:
-  main:
-    allow-bean-definition-overriding: true
-  data:
-    mongodb:
-      uri: mongodb://${MONGO_USER}:${MONGO_PWD}@${MONGO_HOST}:27017/spring-ai?authSource=admin
-  ai:
-    chat:
-      client:
-        # 关闭自动注入 client.builder，只注入 ClientModel
-        enabled: false
-    # MCP 配置
-    mcp:
-      client:
-        streamable-http:
-          connections:
-            my-weather-server:
-              url: http://localhost:9001
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
-```
-
-4. **运行应用**
-
-```bash
-mvn spring-boot:run
-```
-
-或者先编译再运行：
-
-```bash
-mvn clean package
-java -jar target/spring-ai-1.0-SNAPSHOT.jar
-```
-
-5. **访问应用**
-
-- 应用默认运行在 `http://localhost:9999`
-- 访问 `http://localhost:9999/chat.html` 使用 Web 界面
-- API 端点：
-  - `POST /chat/content` - 普通文本对话
-  - `POST /chat/stream` - 流式响应对话
-  - `POST /chat/history` - 查询对话历史
-
-## 配置说明
-
-### application.yml 配置项
-
-| 配置项                                         | 说明           | 默认值              |
-|---------------------------------------------|--------------|------------------|
-| `server.port`                               | 服务端口         | 9999             |
-| `spring.ai.openai.api-key`                  | API 密钥       | 从环境变量读取          |
-| `spring.ai.openai.base-url`                 | API 基础地址     | DashScope 兼容地址   |
-| `spring.data.mongodb.uri`                   | MongoDB 连接地址 | 从环境变量读取          |
-| `ai.openai.max-tokens`                      | 最大 token 数   | 1000             |
-| `ai.openai.temperature`                     | 温度参数         | 0.5              |
-| `ai.openai.text-model`                      | 文本模型名称       | qwen3-max        |
-| `ai.openai.full-model`                      | 多模态模型名称      | qwen3-omni-flash |
-| `ai.openai.chat-model-type`                 | 默认模型类型       | text             |
-| `spring.servlet.multipart.max-file-size`    | 最大文件大小       | 10MB             |
-| `spring.servlet.multipart.max-request-size` | 最大请求大小       | 50MB             |
-
-### 模型配置
-
-项目支持两种模型配置：
-
-- **textChatModel**: 用于纯文本对话，使用 `qwen3-max`，支持 Function Calling
-- **fullChatModel**: 用于多模态对话（文本+图片），使用 `qwen3-omni-flash`
-
-通过 `ai.openai.chat-model-type` 配置项可以设置默认使用的模型类型：
-- `text`: 使用文本模型（支持工具调用）
-- `full`: 使用多模态模型（支持图片）
-
-## 项目结构
-
-```
-spring-ai/
-├── spring-ai-demo/                   # 主应用
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/lei/learn/spring/ai/
-│   │   │   │   ├── advisor/          # Advisor 实现
-│   │   │   │   ├── configuration/    # 配置类
-│   │   │   │   ├── controller/       # 控制器
-│   │   │   │   ├── mcp/              # MCP
-│   │   │   │   ├── memory/           # 对话记忆管理
-│   │   │   │   ├── model/            # 数据模型
-│   │   │   │   ├── repository/       # 数据访问层
-│   │   │   │   ├── support/          # 常量和枚举定义
-│   │   │   │   ├── tool/             # Function Calling 工具
-│   │   │   │   ├── utils/            # 工具类
-│   │   │   │   └── Application.java  # 主应用类
-│   │   │   └── resources/
-│   │   │       ├── application.yml    # 配置文件
-│   │   │       └── static/           # 静态资源
-│   │   └── test/                     # 测试代码
-├── mcp-weather-server/               # MCP 天气服务器示例
-├── pom.xml                           # Maven 配置
-└── README.md                         # 项目说明
-```
+- [spring-ai-example 运行指南](./spring-ai-example/README.md#快速开始)
+- [mcp-weather-server 运行指南](./mcp-weather-server/README.md#快速开始)
+- [spring-ai-alibaba-weather-agent 运行指南](./spring-ai-alibaba-weather-agent/README.md#快速开始)
+- [etl-opensearch 运行指南](./etl-opensearch/README.md#快速开始)
 
 ## 注意事项
 
 1. **API 密钥安全**: 生产环境请使用环境变量或密钥管理服务，不要将密钥硬编码在配置文件中。
 
-2. **文件上传限制**: 默认最大文件大小为 10MB，可在 `application.yml` 中调整。
+2. **模块依赖**: 各模块相对独立，可以单独运行。如果需要使用 MCP 功能，需要同时启动 `spring-ai-example` 和 `mcp-weather-server`。
 
-3. **对话记忆**: 使用 `MessageWindowChatMemory` 结合 MongoDB 持久化存储，对话历史会保存到数据库中，应用重启后不会丢失。
+3. **端口冲突**: 注意各模块的默认端口：
+   - `spring-ai-example`: 9999
+   - `mcp-weather-server`: 9001
+   - `spring-ai-alibaba-weather-agent`: 8001
+   - `etl-opensearch`: 7001
 
-4. **用户上下文**: `UserContextUtils.getCurrentUserId()` 需要根据实际业务实现用户身份获取逻辑。
+更多详细的注意事项和配置说明，请参考各模块的 README 文档。
 
-5. **模型选择**:
-    - 通过 `ai.openai.chat-model-type` 配置默认模型类型
-    - `text` 模型支持 Function Calling，性能更好
-    - `full` 模型支持图片输入
 
-6. **Function Calling**:
-    - 仅文本模型（textChatClient）支持工具调用
-    - 多模态模型（fullChatClient）不支持 Function Calling
+## 学习资源
 
-7. **MCP 服务器**:
-    - 项目包含 `mcp-weather-server` 示例，演示如何创建 MCP 工具服务器
-    - 需要单独启动 MCP 服务器（端口 9001）才能使用相关工具
+- [Spring AI 官方文档](https://docs.spring.io/spring-ai/reference/index.html)
+- [Spring AI Alibaba 官方文档](https://java2ai.com/)
 
-## 核心实现
 
-### 自定义 MongoDB 对话记忆仓库
-
-项目实现了 `CustomerMongoChatMemoryRepository`，扩展了 Spring AI 的 `ChatMemoryRepository` 接口：
-
-- **持久化存储**：对话历史保存到 MongoDB 的 `ai_chat_memory` 集合
-- **用户维度管理**：每条对话记录关联用户 ID，支持按用户查询
-- **对话分组**：支持按 `conversationId` 分组管理对话
-- **消息窗口**：默认保留最近 20 条消息，避免上下文过长
-
-### 对话记忆配置
-
-```java
-@Bean
-public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository) {
-    return MessageWindowChatMemory.builder()
-            .maxMessages(20)  // 最多保留 20 条消息
-            .chatMemoryRepository(chatMemoryRepository)
-            .build();
-}
-```
-
-## 测试
-
-运行测试：
-
-```bash
-mvn test
-```
 
