@@ -17,13 +17,13 @@ Spring AI 学习项目，这是一个多模块的 Maven 项目，包含多个示
 
 本项目包含以下五个模块：
 
-| 模块 | 说明 | 详细文档 |
-|------|------|----------|
+| 模块 | 说明                                                 | 详细文档 |
+|------|----------------------------------------------------|----------|
 | [spring-ai-example](./spring-ai-example) | Spring AI 核心功能示例：文本对话、多模态、Function Calling、MCP 集成等 | [README](./spring-ai-example/README.md) |
-| [mcp-weather-server](./mcp-weather-server) | MCP 服务器实现示例，提供天气查询工具服务 | [README](./mcp-weather-server/README.md) |
-| [spring-ai-alibaba-weather-agent](./spring-ai-alibaba-weather-agent) | 基于 Spring AI Alibaba 的智能体框架示例，实现天气查询 Agent | [README](./spring-ai-alibaba-weather-agent/README.md) |
-| [etl-opensearch](./etl-opensearch) | RAG 向量存储示例，演示文档 ETL 处理和向量存储 | [README](./etl-opensearch/README.md) |
-| [rag-etl-core](./rag-etl-core) | RAG ETL 核心模块，提供通用的管道组件和接口，支持 Markdown 文档处理 | [README](./rag-etl-core/README.md) |
+| [mcp-weather-server](./mcp-weather-server) | MCP 服务器实现示例，提供天气查询工具服务                             | [README](./mcp-weather-server/README.md) |
+| [spring-ai-alibaba-weather-agent](./spring-ai-alibaba-weather-agent) | 基于 Spring AI Alibaba 的智能体框架示例，实现天气查询 Agent         | [README](./spring-ai-alibaba-weather-agent/README.md) |
+| [rag-etl-core](./rag-etl-core) | RAG ETL 核心模块，提供通用的管道组件和接口，支持 Markdown 文档处理         | [README](./rag-etl-core/README.md) |
+| [rag-etl-opensearch](./rag-etl-opensearch) | OpenSearch + DashScope 向量存储示例，演示文档 ETL 处理和向量存储 | [README](./rag-etl-opensearch/README.md) |
 
 
 
@@ -34,7 +34,7 @@ Spring AI 学习项目，这是一个多模块的 Maven 项目，包含多个示
 - JDK 21 或更高版本
 - Maven 3.6+
 - MongoDB 数据库（spring-ai-example 模块需要）
-- OpenSearch（etl-opensearch 模块需要）
+- OpenSearch（rag-etl-opensearch 模块需要）
 - OpenAI API Key 或阿里云 DashScope API Key
 
 ### 构建项目
@@ -44,15 +44,6 @@ git clone <repository-url>
 cd spring-ai
 mvn clean install
 ```
-
-### 运行模块
-
-每个模块都可以独立运行，详细的配置和运行说明请参考各模块的 README 文档：
-
-- [spring-ai-example 运行指南](./spring-ai-example/README.md#快速开始)
-- [mcp-weather-server 运行指南](./mcp-weather-server/README.md#快速开始)
-- [spring-ai-alibaba-weather-agent 运行指南](./spring-ai-alibaba-weather-agent/README.md#快速开始)
-- [etl-opensearch 运行指南](./etl-opensearch/README.md#快速开始)
 
 ## 注意事项
 
@@ -64,7 +55,7 @@ mvn clean install
    - `spring-ai-example`: 9999
    - `mcp-weather-server`: 9001
    - `spring-ai-alibaba-weather-agent`: 8001
-   - `etl-opensearch`: 7001
+   - `rag-etl-opensearch`: 7001
    - `rag-etl-core`: 无独立运行端口（核心依赖模块）
 
 更多详细的注意事项和配置说明，请参考各模块的 README 文档。
