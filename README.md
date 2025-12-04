@@ -15,7 +15,7 @@ Spring AI 学习项目，这是一个多模块的 Maven 项目，包含多个示
 
 ## 项目模块
 
-本项目包含以下四个模块：
+本项目包含以下五个模块：
 
 | 模块 | 说明 | 详细文档 |
 |------|------|----------|
@@ -23,6 +23,7 @@ Spring AI 学习项目，这是一个多模块的 Maven 项目，包含多个示
 | [mcp-weather-server](./mcp-weather-server) | MCP 服务器实现示例，提供天气查询工具服务 | [README](./mcp-weather-server/README.md) |
 | [spring-ai-alibaba-weather-agent](./spring-ai-alibaba-weather-agent) | 基于 Spring AI Alibaba 的智能体框架示例，实现天气查询 Agent | [README](./spring-ai-alibaba-weather-agent/README.md) |
 | [etl-opensearch](./etl-opensearch) | RAG 向量存储示例，演示文档 ETL 处理和向量存储 | [README](./etl-opensearch/README.md) |
+| [rag-etl-core](./rag-etl-core) | RAG ETL 核心模块，提供通用的管道组件和接口，支持 Markdown 文档处理 | [README](./rag-etl-core/README.md) |
 
 
 
@@ -64,6 +65,7 @@ mvn clean install
    - `mcp-weather-server`: 9001
    - `spring-ai-alibaba-weather-agent`: 8001
    - `etl-opensearch`: 7001
+   - `rag-etl-core`: 无独立运行端口（核心依赖模块）
 
 更多详细的注意事项和配置说明，请参考各模块的 README 文档。
 
