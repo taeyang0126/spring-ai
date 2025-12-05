@@ -10,7 +10,7 @@ ai:
     temperature: 0.5
     text-model: qwen3-max
     full-model: qwen3-omni-flash
-    # chat 文本模型
+    # chat 文本模型，全模态模型无法 function calling
     chat-model-type: text
 
 spring:
@@ -24,11 +24,27 @@ spring:
   data:
     mongodb:
       uri: mongodb://${MONGO_USER}:${MONGO_PWD}@${MONGO_HOST}:27017/spring-ai?authSource=admin
+  ssl:
+    bundle:
+      pem:
+        opensearch:
+          truststore:
+            certificate: "classpath:certs/opensearch-ca.pem"
   ai:
+    dashscope:
+      api-key: ${AI_DASHSCOPE_API_KEY}
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
     chat:
       client:
         # 关闭自动注入 client.builder，只注入 ClientModel
         enabled: false
+    model:
+      # 指定 embedding 模型提供方，避免加载到 OpenAiEmbeddingAutoConfiguration
+      embedding: dashscope
+      # 指定 chat 模型提供方，避免加载到 DashScopeChatAutoConfiguration
+      chat: openai
     # mcp
     mcp:
       client:
@@ -36,9 +52,20 @@ spring:
           connections:
             my-weather-server:
               url: http://localhost:9001
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
+    vectorstore:
+      opensearch:
+        uris: ${OPEN_SEARCH_URI}
+        username: ${OPEN_SEARCH_USER}
+        password: ${OPEN_SEARCH_PWD}
+        index-name: spring-ai-document-index
+        # 首次启动时自动创建索引和映射
+        initialize-schema: true
+        # 相似度计算函数（OpenSearch 支持 'cosinesimil' 或 'l2'）
+        similarity: cosinesimil
+        read-timeout: 30s
+        connection-timeout: 10s
+        ssl-bundle: opensearch
+
 #      chat:
 #        options:
 #          # 文本模型 qwen3-max

@@ -1,6 +1,6 @@
 package com.lei.learn.rag.etl.opensearch;
 
-import com.lei.learn.etl.opensearch.pipeline.markdown.MarkdownRagPipeline;
+import com.lei.learn.etl.core.pipeline.markdown.MarkdownRagPipeline;
 import org.junit.jupiter.api.Test;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.FieldValue;

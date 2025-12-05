@@ -22,7 +22,7 @@ public class UserTools {
 
     private final UserRepository userRepository;
 
-    @Tool(description = "查询当前用户信息，要返回userId、username、email、phoneNumber，同时对于邮箱和手机号等敏感信息需要脱敏")
+    @Tool(description = "查询当前用户信息，不需要参数，参数从ToolContext中获取，要返回userId、username、email、phoneNumber，同时对于邮箱和手机号等敏感信息需要脱敏")
     public User findCurrentUser(ToolContext toolContext) {
         Object userId = toolContext.getContext().get(Constants.USER_ID);
         if (null == userId) {

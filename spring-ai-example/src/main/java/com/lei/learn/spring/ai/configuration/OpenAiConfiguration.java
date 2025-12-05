@@ -117,15 +117,10 @@ public class OpenAiConfiguration {
         );
     }
 
-    @Bean
-    public UserTools userTools(UserRepository userRepository) {
-        return new UserTools(userRepository);
-    }
-
     @Bean("textChatClient")
     public ChatClient textChatClient(ChatMemory chatMemory,
                                      @Qualifier("textChatModel") ChatModel chatModel,
-                                     UserTools userTools,
+                                     UserRepository userRepository,
                                      ToolCallbackProvider mcpToolProvider) {
         log.info("[textChatClient] init | start");
         return ChatClient.builder(chatModel)
@@ -145,7 +140,7 @@ public class OpenAiConfiguration {
                 )
                 // 默认工具会在所有由同一ChatClient.Builder实例构建的 ChatClient 实例执行的所有聊天请求之间共享
                 // 要求 tool 最好是无状态可共享的
-                .defaultTools(new DateTimeTools(), userTools)
+                .defaultTools(new DateTimeTools(), new UserTools(userRepository))
                 // mcp
                 .defaultToolCallbacks(mcpToolProvider)
                 .build();
