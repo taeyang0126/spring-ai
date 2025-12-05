@@ -12,15 +12,20 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -117,11 +122,51 @@ public class OpenAiConfiguration {
         );
     }
 
+    /**
+     * QuestionAnswerAdvisor
+     * 使用向量检索，将检索到的文档作为上下文添加到上下文
+     * 1. 只回答检索到的文档，不要回答其他内容
+     *
+     * @param vectorStore 向量存储
+     * @return QuestionAnswerAdvisor
+     */
+    @Bean
+    public QuestionAnswerAdvisor questionAnswerAdvisor(VectorStore vectorStore) {
+        PromptTemplate customPromptTemplate = PromptTemplate.builder()
+                .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
+                .template("""
+                        用户提问: <query>
+                        上下文信息如下:
+                        ---------------------
+                        <question_answer_context>
+                        ---------------------
+                        
+                        根据上下文信息且没有先验知识，回答查询。
+                        
+                        遵循以下规则：
+                        
+                        1. 如果答案不在上下文中，只需说你不知道，不要提供其他信息。
+                        2. 避免使用"根据上下文..."或"提供的信息..."等语句。
+                        """)
+                .build();
+
+
+        return QuestionAnswerAdvisor.builder(vectorStore)
+                .searchRequest(SearchRequest.builder()
+                        .topK(3)
+                        .similarityThreshold(0.7d)
+                        .build()
+                )
+                .build();
+    }
+
     @Bean("textChatClient")
     public ChatClient textChatClient(ChatMemory chatMemory,
                                      @Qualifier("textChatModel") ChatModel chatModel,
                                      UserRepository userRepository,
-                                     ToolCallbackProvider mcpToolProvider) {
+                                     ToolCallbackProvider mcpToolProvider,
+                                     QuestionAnswerAdvisor questionAnswerAdvisor
+    ) {
         log.info("[textChatClient] init | start");
         return ChatClient.builder(chatModel)
                 .defaultAdvisors(
@@ -131,7 +176,9 @@ public class OpenAiConfiguration {
                         new UserContextAdvisor(),
                         // 日志
                         SimpleLoggerAdvisor.builder()
-                                .order(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER).build()
+                                .order(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER).build(),
+                        // QuestionAnswerAdvisor
+                        questionAnswerAdvisor
                         // ToolCallAdvisor 将工具调用循环实现为顾问链的一部分，而不是依赖模型内部的工具执行。这使得链中的其他顾问能够拦截并观察工具调用过程。
                         // ToolCallAdvisor 不支持 stream
                         // ToolCallAdvisor.builder().advisorOrder(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 100).build()
