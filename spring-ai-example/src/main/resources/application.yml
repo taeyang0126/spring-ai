@@ -49,12 +49,12 @@ spring:
       # rerank 模型
       rerank: dashscope
     # mcp
-    mcp:
-      client:
-        streamable-http:
-          connections:
-            my-weather-server:
-              url: http://localhost:9001
+#    mcp:
+#      client:
+#        streamable-http:
+#          connections:
+#            my-weather-server:
+#              url: http://localhost:9001
     vectorstore:
       opensearch:
         uris: ${OPEN_SEARCH_URI}
