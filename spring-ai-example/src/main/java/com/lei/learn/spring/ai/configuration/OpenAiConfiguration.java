@@ -1,7 +1,9 @@
 package com.lei.learn.spring.ai.configuration;
 
+import com.alibaba.cloud.ai.dashscope.rerank.DashScopeRerankModel;
 import com.lei.learn.spring.ai.advisor.UserContextAdvisor;
 import com.lei.learn.spring.ai.memory.CustomerMongoChatMemoryRepository;
+import com.lei.learn.spring.ai.rag.ReRankDocumentPostProcessor;
 import com.lei.learn.spring.ai.repository.UserRepository;
 import com.lei.learn.spring.ai.tool.DateTimeTools;
 import com.lei.learn.spring.ai.tool.UserTools;
@@ -22,6 +24,10 @@ import org.springframework.ai.model.tool.ToolCallingManager;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
+import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
+import org.springframework.ai.rag.preretrieval.query.transformation.RewriteQueryTransformer;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.SearchRequest;
@@ -34,6 +40,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.retry.support.RetryTemplate;
+
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -122,6 +130,7 @@ public class OpenAiConfiguration {
         );
     }
 
+
     /**
      * QuestionAnswerAdvisor
      * 使用向量检索，将检索到的文档作为上下文添加到上下文
@@ -160,12 +169,74 @@ public class OpenAiConfiguration {
                 .build();
     }
 
+    @Bean
+    public ReRankDocumentPostProcessor reRankDocumentPostProcessor(DashScopeRerankModel reRankChatModel) {
+        return new ReRankDocumentPostProcessor(reRankChatModel);
+    }
+
+    @Bean
+    public RetrievalAugmentationAdvisor retrievalAugmentationAdvisor(VectorStore vectorStore,
+                                                                     @Qualifier("textChatModel") ChatModel chatModel,
+                                                                     ReRankDocumentPostProcessor reRankDocumentPostProcessor) {
+        PromptTemplate promptTemplate = new PromptTemplate("""
+                Context information is below.
+                Here, `<text></text>` encloses the context content, and `<link></link>` encloses a link to the corresponding content.
+                
+                ---------------------
+                {context}
+                ---------------------
+                
+                Given the context information and no prior knowledge, answer the query.
+                
+                Follow these rules:
+                
+                1. If the answer is not in the context, just say that you don't know.
+                2. Avoid statements like "Based on the context..." or "The provided information...".
+                3. If there is a link, please include it in your reply.
+                4. Most importantly, if the answer is not provided in the context, please be clear that you do not know.
+                
+                Query: {query}
+                
+                Answer:
+                """);
+
+        // 默认检索到的文档不能为空，当发生这种情况时， 它会指示模型不要回答用户查询
+        return RetrievalAugmentationAdvisor.builder()
+                // 1. 使用大语言模型重写查询
+                .queryTransformers(
+                        RewriteQueryTransformer.builder()
+                                .chatClientBuilder(ChatClient.builder(chatModel))
+                                .build()
+                )
+                // 2. 粗粒度检索
+                .documentRetriever(
+                        VectorStoreDocumentRetriever.builder()
+                                .vectorStore(vectorStore)
+                                .similarityThreshold(0.5d)
+                                .topK(10)
+                                .build()
+                )
+                // 3. 使用 reRankModel 重排
+                .documentPostProcessors(reRankDocumentPostProcessor)
+                // 4. 上下文重新定义，添加link
+                .queryAugmenter(
+                        ContextualQueryAugmenter.builder()
+                                .promptTemplate(promptTemplate)
+                                .documentFormatter(documents -> documents.stream()
+                                        .map(t -> "<text>" + t.getText() + "</text>, <link>" + t.getMetadata().get("metadata.link") + "</link>")
+                                        .collect(Collectors.joining(System.lineSeparator()))
+                                ).build()
+                )
+                .build();
+    }
+
     @Bean("textChatClient")
     public ChatClient textChatClient(ChatMemory chatMemory,
                                      @Qualifier("textChatModel") ChatModel chatModel,
                                      UserRepository userRepository,
                                      ToolCallbackProvider mcpToolProvider,
-                                     QuestionAnswerAdvisor questionAnswerAdvisor
+                                     QuestionAnswerAdvisor questionAnswerAdvisor,
+                                     RetrievalAugmentationAdvisor retrievalAugmentationAdvisor
     ) {
         log.info("[textChatClient] init | start");
         return ChatClient.builder(chatModel)
@@ -178,7 +249,8 @@ public class OpenAiConfiguration {
                         SimpleLoggerAdvisor.builder()
                                 .order(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER).build(),
                         // QuestionAnswerAdvisor
-                        questionAnswerAdvisor
+                        // questionAnswerAdvisor
+                        retrievalAugmentationAdvisor
                         // ToolCallAdvisor 将工具调用循环实现为顾问链的一部分，而不是依赖模型内部的工具执行。这使得链中的其他顾问能够拦截并观察工具调用过程。
                         // ToolCallAdvisor 不支持 stream
                         // ToolCallAdvisor.builder().advisorOrder(Advisor.DEFAULT_CHAT_MEMORY_PRECEDENCE_ORDER + 100).build()

@@ -33,4 +33,9 @@ public class OpenAiProperties {
      */
     private ModelType chatModelType;
 
+    /**
+     * reRank 模型
+     */
+    private String reRankModel;
+
 }

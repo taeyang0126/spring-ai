@@ -10,6 +10,7 @@ ai:
     temperature: 0.5
     text-model: qwen3-max
     full-model: qwen3-omni-flash
+    reRank-model: qwen3-rerank
     # chat 文本模型，全模态模型无法 function calling
     chat-model-type: text
 
@@ -45,6 +46,8 @@ spring:
       embedding: dashscope
       # 指定 chat 模型提供方，避免加载到 DashScopeChatAutoConfiguration
       chat: openai
+      # rerank 模型
+      rerank: dashscope
     # mcp
     mcp:
       client:
