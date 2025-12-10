@@ -21,6 +21,7 @@
         <module>rag-etl-core</module>
         <module>rag-etl-opensearch</module>
         <module>spring-ai-alibaba-weather-agent</module>
+        <module>spring-ai-alibaba-graph</module>
     </modules>
 
     <properties>
