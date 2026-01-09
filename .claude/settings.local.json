@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "mcp__github__get_me",
+      "mcp__github__search_issues",
+      "mcp__github__search_pull_requests",
+      "mcp__github__issue_read",
+      "WebSearch"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)"
+    ]
+  }
+}
