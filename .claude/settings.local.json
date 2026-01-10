@@ -6,7 +6,8 @@
       "mcp__github__search_issues",
       "mcp__github__search_pull_requests",
       "mcp__github__issue_read",
-      "WebSearch"
+      "WebSearch",
+      "mcp__web-reader__webReader"
     ],
     "deny": [
       "Bash(rm -rf *)",
