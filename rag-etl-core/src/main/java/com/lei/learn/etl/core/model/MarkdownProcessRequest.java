@@ -31,9 +31,9 @@ public class MarkdownProcessRequest {
     private MarkdownConfig markdownConfig;
 
     /**
-     * 额外的元数据
+     * 额外的元数据（默认容量 4，假设平均 4 个元数据项）
      */
-    private Map<String, Object> metadata = new HashMap<>();
+    private Map<String, Object> metadata = new HashMap<>(4);
 
     @Data
     public static class SplitterConfig {

@@ -43,3 +43,5 @@ build/
 **/target/**
 /sweep-commit-template.md
 /SWEEP.md
+
+code-review-reports/**
