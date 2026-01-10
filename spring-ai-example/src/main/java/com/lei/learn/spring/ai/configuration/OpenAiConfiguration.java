@@ -223,7 +223,7 @@ public class OpenAiConfiguration {
                         ContextualQueryAugmenter.builder()
                                 .promptTemplate(promptTemplate)
                                 .documentFormatter(documents -> documents.stream()
-                                        .map(t -> "<text>" + t.getText() + "</text>, <link>" + t.getMetadata().get("metadata.link") + "</link>")
+                                        .map(t -> "<text>" + t.getText() + "</text>, <link>" + t.getMetadata().get("link") + "</link>")
                                         .collect(Collectors.joining(System.lineSeparator()))
                                 ).build()
                 )
