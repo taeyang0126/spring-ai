@@ -1,68 +1,55 @@
 # CLAUDE.md
 
-Spring AI 学习项目完整文档。
+Spring AI 学习项目文档。
 
 > **沟通约定**：AI 始终使用中文回复，包括代码注释、提交信息和文档说明
 
 ## 快速导航
 
-### 📖 项目相关
-- [项目概述](rules/project/overview.md) - 技术栈和模块说明
-- [常用命令](rules/project/commands.md) - Maven 构建和测试命令
+### 📖 项目
+- [项目指南](rules/project/overview.md) - 概述、模块、命令、环境
 
-### 🏗️ 架构相关
-- [架构模式](rules/architecture/patterns.md) - Advisor、RAG、MCP 等核心模式
-- [环境配置](rules/architecture/configuration.md) - 环境变量和配置文件
+### 🏗️ 架构
+- [架构指南](rules/architecture/guide.md) - 模式、配置
 
-### 💻 开发相关
-- [代码组织](rules/development/code-organization.md) - 包结构和 Lombok 配置
-- [代码规范](rules/development/code-standards.md) - 命名、注释、编码风格
+### 💻 开发
+- [开发指南](rules/development/guide.md) - 命名、风格、注释、Lombok
 
-### 🔄 工作流相关
-- [Git 提交规范](rules/workflow/git-conventions.md) - Conventional Commits 格式
+### 🔄 工作流
+- [Git 规范](rules/workflow/git-conventions.md) - 提交格式、示例
 
-## 核心规范摘要
+## 核心摘要
 
-### 命名规范
-- **类名**：UpperCamelCase（帕斯卡命名法）
-- **方法/变量**：lowerCamelCase（驼峰命名法）
-- **常量**：全大写，下划线分隔
+### 命名
+- 类：UpperCamelCase
+- 方法/变量：lowerCamelCase
+- 常量：全大写_分隔
 
-### Git 提交格式
+### Git 提交
 ```
 <type>(<scope>): <subject>
 ```
-
 **类型**：`feat`/`fix`/`test`/`docs`/`refactor`/`chore`
 
 **示例**：
-- `feat: 添加用户认证功能`
-- `fix(spring-ai-example): 修复登录超时问题`
-- `test: 添加用户服务单元测试`
+- `feat: 添加用户认证`
+- `fix(spring-ai-example): 修复超时`
 
 ### 环境变量
 ```bash
-export OPENAI_API_KEY=your-api-key
+export OPENAI_API_KEY=your-key
 export OPENAI_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode
 export MONGO_HOST=localhost
-export MONGO_USER=your-mongo-username
-export MONGO_PWD=your-mongo-password
+export MONGO_USER=user
+export MONGO_PWD=password
 ```
 
-## 重要说明
+### 端口
+9999（主应用）、9001（MCP）、8001（智能体）、7001（OpenSearch）
 
-1. **端口分配**：9999（主应用）、9001（MCP）、8001（智能体）、7001（OpenSearch）
-2. **模块独立性**：MCP 功能需要同时启动客户端和服务端
-3. **Java 21**：使用 record、虚拟线程、模式匹配等现代特性
-4. **中文注释**：代码库包含中文注释和文档
-
-## 技术栈
-
-- **Spring Boot**: 3.5.8
-- **Spring AI**: 1.1.0-M4
-- **Java**: 21
-- **构建工具**: Maven
+### Java 21
+record、虚拟线程、模式匹配
 
 ---
 
-**详细文档**：查看 [rules/](rules/) 目录
+**技术栈**：Spring Boot 3.5.8、Spring AI 1.1.0-M4、Java 21
