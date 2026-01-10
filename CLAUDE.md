@@ -4,7 +4,6 @@
 
 > **沟通约定**：
 > - AI **始终使用中文**回复，包括代码注释、提交信息和文档说明
-> - **任何代码变更都必须先制订计划**，与用户讨论并获得批准后方可执行
 
 ## 项目概述
 
@@ -182,6 +181,118 @@ com.lei.learn.spring.ai/
 - 优先使用不可变对象
 - 使用 `Optional` 替代 null 返回值
 - 使用 record 定义简单数据载体（Java 16+）
+
+## Git 提交规范
+
+本项目遵循 **Conventional Commits**（约定式提交）规范，以确保提交历史清晰、可读且易于维护。
+
+### 提交信息格式
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+### Type（类型）
+
+| 类型 | 说明 | 示例 |
+|-----|------|------|
+| `feat` | 新功能 | feat: 添加用户认证功能 |
+| `fix` | Bug 修复 | fix: 修复登录超时问题 |
+| `docs` | 文档变更 | docs: 更新 README 安装说明 |
+| `style` | 代码格式（不影响功能） | style: 统一代码缩进为 2 空格 |
+| `refactor` | 重构（既不是新功能也不是修复） | refactor: 重构订单处理流程 |
+| `perf` | 性能优化 | perf: 优化数据库查询性能 |
+| `test` | 添加或修改测试 | test: 添加用户服务单元测试 |
+| `chore` | 构建过程或辅助工具的变动 | chore: 升级 Maven 依赖版本 |
+| `ci` | CI/CD 配置变更 | ci: 添加 GitHub Actions 工作流 |
+| `revert` | 回滚先前的提交 | revert: 回滚 commit abc123 |
+
+### Scope（范围）
+
+Scope 表示提交影响的模块或组件：
+
+- `rag-etl-core` - RAG ETL 核心模块
+- `rag-etl-opensearch` - OpenSearch 向量存储模块
+- `spring-ai-example` - 主示例模块
+- `mcp-weather-server` - MCP 天气服务端
+- `spring-ai-alibaba-*` - 阿里云 Spring AI 相关模块
+- `build` - 构建配置
+- `deps` - 依赖管理
+
+### Subject（主题）
+
+- 使用中文描述
+- 以动词开头，如"添加"、"修复"、"更新"
+- 首字母小写
+- 结尾不加句号
+- 限制在 50 个字符以内
+
+### Body（正文）
+
+- 对本次提交的详细描述
+- 列出主要变更点（使用 `-` 开头）
+- 说明"为什么"而不是"是什么"
+
+### Footer（脚注）
+
+- 关联 Issue：`Closes #123` 或 `Fixes #456`
+- 破坏性变更：以 `BREAKING CHANGE:` 开头
+
+### 提交示例
+
+```bash
+# 简单提交
+git commit -m "feat: 添加用户头像上传功能"
+
+# 带范围的提交
+git commit -m "feat(rag-etl-core): 添加 PDF 文档读取器"
+
+# 详细提交（多行）
+git commit -m "fix(spring-ai-example): 修复对话历史记忆丢失问题
+
+- 修复 ConversationId 未正确传递的问题
+- 优化 MongoDBChatMemoryRepository 查询逻辑
+- 添加单元测试验证修复
+
+Closes #123"
+
+# 使用 HEREDOC 格式（推荐）
+git commit -m "$(cat <<'EOF'
+test(rag-etl-core): 补充完整的单元测试
+
+- 添加 MarkdownProcessRequestTest 测试类（9 个测试用例）
+- 添加 MarkdownProcessResponseTest 测试类（19 个测试用例）
+- 添加 MarkdownRagPipelineBuilderTest 测试类（32 个测试用例）
+- 添加 RagPipelineTest 测试类（29 个测试用例）
+- 优化异常处理，增强错误信息
+- 改进日志级别和批次处理逻辑
+
+测试覆盖：默认配置、边界值、异常场景、链式调用、批次处理
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+### 常用命令
+
+```bash
+# 查看最近的提交历史
+git log --oneline -10
+
+# 查看提交详情
+git show <commit-hash>
+
+# 修改最后一次提交信息
+git commit --amend
+
+# 查看某个文件的提交历史
+git log --follow -- <file-path>
+```
 
 ## 重要说明
 
