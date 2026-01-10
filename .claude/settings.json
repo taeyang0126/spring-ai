@@ -28,12 +28,8 @@
       "Bash(rm -Rf /*)",
       "Bash(rm -rf ~)",
       "Bash(rm -Rf ~)",
-      "Bash(dd if=/dev/zero of=/dev/sd",
-      "Bash(dd if=/dev/zero of=/dev/vd",
-      "Bash(mkfs.",
       "Bash(mkfs.)",
       "Bash(format c:)",
-      "Bash(:(){ :|:& };:)",
       "Bash(fork bomb)"
     ]
   },
