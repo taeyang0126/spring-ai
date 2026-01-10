@@ -13,21 +13,28 @@
       "mcp__github__search_pull_requests",
       "mcp__github__issue_read",
       "mcp__web-reader__webReader",
-      "mcp__web-reader__webReader",
       "mcp__web-search-prime__webSearchPrime"
     ],
     "deny": [
-      "Bash(rm -rf *)",
       "Bash(rm -rf /)",
       "Bash(rm -rf /*)",
-      "Bash(rm -Rf *)",
+      "Bash(rm -rf /usr)",
+      "Bash(rm -rf /bin)",
+      "Bash(rm -rf /etc)",
+      "Bash(rm -rf /home)",
+      "Bash(rm -rf /root)",
+      "Bash(rm -rf /var)",
       "Bash(rm -Rf /)",
       "Bash(rm -Rf /*)",
-      "Bash(dd *)",
-      "Bash(mkfs *)",
-      "Bash(format *)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -Rf ~)",
+      "Bash(dd if=/dev/zero of=/dev/sd",
+      "Bash(dd if=/dev/zero of=/dev/vd",
+      "Bash(mkfs.",
+      "Bash(mkfs.)",
+      "Bash(format c:)",
       "Bash(:(){ :|:& };:)",
-      "Bash(fork bomb *)"
+      "Bash(fork bomb)"
     ]
   },
   "_comment": {
@@ -44,8 +51,20 @@
       "mcp__web-search-prime__webSearchPrime": "增强版网页搜索"
     },
     "security": {
-      "note": "deny 列表限制了危险命令，防止误删除系统文件",
-      "patterns": "限制 rm -rf、dd、mkfs 等破坏性命令"
+      "note": "deny 列表只限制删除系统关键目录的危险命令，允许删除项目文件",
+      "allowed_deletions": [
+        "rm -rf target/ - 清理构建产物",
+        "rm -rf node_modules/ - 清理依赖",
+        "rm -rf *.log - 清理日志",
+        "rm file.txt - 删除单个文件"
+      ],
+      "blocked_deletions": [
+        "rm -rf / - 删除根目录",
+        "rm -rf /* - 删除根目录下所有内容",
+        "rm -rf ~ - 删除用户主目录",
+        "dd 命令写入磁盘 - 破坏文件系统",
+        "mkfs/format - 格式化磁盘"
+      ]
     }
   }
 }
