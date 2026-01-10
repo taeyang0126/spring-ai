@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "WebSearch",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "mcp__github__get_me",
+      "mcp__github__search_issues",
+      "mcp__github__search_pull_requests",
+      "mcp__github__issue_read",
+      "mcp__web-reader__webReader",
+      "mcp__web-reader__webReader",
+      "mcp__web-search-prime__webSearchPrime"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -Rf *)",
+      "Bash(rm -Rf /)",
+      "Bash(rm -Rf /*)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(format *)",
+      "Bash(:(){ :|:& };:)",
+      "Bash(fork bomb *)"
+    ]
+  },
+  "_comment": {
+    "purpose": "Claude Code 团队共享配置文件",
+    "allow": "允许的工具列表",
+    "deny": "禁止的危险命令模式",
+    "tools": {
+      "Bash": "执行 Bash 命令（用于 git、maven 等操作）",
+      "WebSearch": "网页搜索功能",
+      "Read/Write/Edit": "文件读写编辑工具",
+      "Glob/Grep": "代码搜索工具",
+      "mcp__github__*": "GitHub 集成工具（搜索 issue、PR 等）",
+      "mcp__web-reader__webReader": "网页内容读取工具",
+      "mcp__web-search-prime__webSearchPrime": "增强版网页搜索"
+    },
+    "security": {
+      "note": "deny 列表限制了危险命令，防止误删除系统文件",
+      "patterns": "限制 rm -rf、dd、mkfs 等破坏性命令"
+    }
+  }
+}
